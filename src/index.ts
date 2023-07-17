@@ -1,4 +1,5 @@
 import dotenv from "dotenv"
+import { createHTTPServer } from '@trpc/server/adapters/standalone'
 
 dotenv.config()
 
@@ -11,5 +12,11 @@ const appRouter = router({
 
   }),
 })
+
+const server = createHTTPServer({
+  router: appRouter,
+})
+ 
+server.listen(8080)
 
 export type AppRouter = typeof appRouter
