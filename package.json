@@ -5,7 +5,7 @@
     "build": "rimraf dist && tsc",
     "ts.check": "tsc --project tsconfig.json",
     "add-build": "git add dist",
-    "dev": "concurrently \"npx tsc --watch\" \"nodemon -q dist/index.js\""
+    "dev": "concurrently \"npx tsc --watch\" \"nodemon -q dist/src/index.js\""
   },
   "pre-commit": [
     "ts.check",
