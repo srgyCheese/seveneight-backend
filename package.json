@@ -7,10 +7,19 @@
     "add-build": "git add dist",
     "dev": "concurrently \"npx tsc --watch\" \"nodemon -q dist/index.js\""
   },
+  "pre-commit": [
+    "ts.check",
+    "build",
+    "add-build"
+  ],
   "dependencies": {
+    "@prisma/client": "^5.0.0",
+    "@trpc/server": "^10.34.0",
     "cors": "^2.8.5",
+    "crypto": "^1.0.1",
     "dotenv": "^16.3.1",
-    "express": "^4.18.2"
+    "express": "^4.18.2",
+    "querystring": "^0.2.1"
   },
   "devDependencies": {
     "@types/cors": "^2.8.13",
