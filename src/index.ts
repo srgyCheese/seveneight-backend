@@ -13,8 +13,8 @@ const appRouter = router({
 })
 
 const server = createHTTPServer({
+  middleware: cors(),
   router: appRouter,
-  middleware: cors()
 })
 
 server.listen(8080)

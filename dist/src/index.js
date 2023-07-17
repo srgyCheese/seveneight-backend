@@ -13,8 +13,8 @@ const appRouter = (0, trpc_1.router)({
     profile: trpc_1.publicProcedure.query(() => { }),
 });
 const server = (0, standalone_1.createHTTPServer)({
+    middleware: (0, cors_1.default)(),
     router: appRouter,
-    middleware: (0, cors_1.default)()
 });
 server.listen(8080);
 //# sourceMappingURL=index.js.map
