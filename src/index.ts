@@ -8,7 +8,7 @@ app.get("/", (_req: Request, res: Response) => {
 })
 
 app.get("/ping", (_req: Request, res: Response) => {
-  return res.send("pong 🏓")
+  return res.send("pong 🏓!")
 })
 
 app.listen(port, () => {
