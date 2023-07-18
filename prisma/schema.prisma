@@ -12,23 +12,46 @@ datasource db {
 }
 
 model User {
-  id            String    @id @default(cuid())
-  vk_id            String
-  last_name          String
-  first_name          String
-  photo_400         String?
-  photo_100         String?
+  id         String  @id @default(cuid())
+  vk_id      String
+  last_name  String
+  first_name String
+  photo_400  String?
+  photo_100  String?
 
   posts         Post[]
+  comments      UserComment[] @relation(name: "OtherUsersComments")
+  addedComments UserComment[] @relation(name: "UserComments")
+}
+
+model UserComment {
+  id                String @id @default(cuid())
+  toUserId          String
+  fromUserId        String
+  commentTemplateId String
+
+  toUser          User            @relation(fields: [toUserId], references: [id], onDelete: Cascade, name: "OtherUsersComments")
+  fromUser        User            @relation(fields: [fromUserId], references: [id], onDelete: Cascade, name: "UserComments")
+  commentTemplate CommentTemplate @relation(fields: [commentTemplateId], references: [id], onDelete: Cascade)
+
+  @@index([toUserId])
+  @@index([fromUserId])
+  @@index([commentTemplateId])
 }
 
 model Post {
-  id            String    @id @default(cuid())
+  id      String @id @default(cuid())
   userId  String
   title   String
   content String
 
-  user    User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
+}
+
+model CommentTemplate {
+  id       String        @id @default(cuid())
+  url      String
+  comments UserComment[]
 }
