@@ -22,9 +22,7 @@ const createContext = ({ req, res, }) => __awaiter(void 0, void 0, void 0, funct
     const urlParams = querystring_1.default.decode(req.headers.authorization);
     const areLaunchParamsValid = (0, verifyLaunchParams_1.verifyLaunchParams)(req.headers.authorization);
     if (!areLaunchParamsValid) {
-        return {
-            user: undefined,
-        };
+        throw new server_1.TRPCError({ code: "UNAUTHORIZED" });
     }
     const candidate = yield client_1.prisma.user.findFirst({
         where: {

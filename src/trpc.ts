@@ -14,9 +14,7 @@ export const createContext = async ({
   const areLaunchParamsValid = verifyLaunchParams(req.headers.authorization)
 
   if (!areLaunchParamsValid) {
-    return {
-      user: undefined,
-    }
+    throw new TRPCError({ code: "UNAUTHORIZED" })
   }
 
   const candidate = await prisma.user.findFirst({
