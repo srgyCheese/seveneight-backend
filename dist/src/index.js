@@ -32,16 +32,11 @@ const cors_1 = __importDefault(require("cors"));
 dotenv_1.default.config();
 const trpc_1 = require("./trpc");
 const express_1 = __importDefault(require("express"));
+const appRouter_1 = require("./appRouter");
 const app = (0, express_1.default)();
-const appRouter = (0, trpc_1.router)({
-    test: trpc_1.publicProcedure.query(() => "test nice"),
-    profile: trpc_1.authProcedure.query(({ ctx }) => {
-        return ctx.user;
-    }),
-});
 app.use((0, cors_1.default)());
 app.use("/trpc", trpcExpress.createExpressMiddleware({
-    router: appRouter,
+    router: appRouter_1.appRouter,
     createContext: trpc_1.createContext,
 }));
 app.listen(8080);

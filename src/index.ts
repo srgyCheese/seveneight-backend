@@ -8,15 +8,9 @@ dotenv.config()
 import * as trpc from "@trpc/server"
 import { authProcedure, createContext, publicProcedure, router } from "./trpc"
 import express from "express"
+import { appRouter } from "./appRouter"
 
 const app = express()
-
-const appRouter = router({
-  test: publicProcedure.query(() => "test nice"),
-  profile: authProcedure.query(({ ctx }) => {
-    return ctx.user
-  }),
-})
 
 app.use(cors())
 
@@ -29,5 +23,3 @@ app.use(
 )
 
 app.listen(8080)
-
-export type AppRouter = typeof appRouter
