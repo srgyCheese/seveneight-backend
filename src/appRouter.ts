@@ -8,6 +8,25 @@ export const appRouter = router({
   profile: authProcedure.query(({ ctx }) => {
     return ctx.user
   }),
+  user: authProcedure
+    .input(
+      z.object({
+        id: z.string(),
+      })
+    )
+    .query(async ({ ctx, input }) => {
+      const user = await prisma.user.findFirst({
+        where: {
+          id: input.id,
+        },
+      })
+
+      if (!user) {
+        throw new TRPCError({ code: "BAD_REQUEST" })
+      }
+
+      return user
+    }),
   addComment: authProcedure
     .input(
       z.object({

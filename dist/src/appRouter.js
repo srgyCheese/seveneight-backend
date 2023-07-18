@@ -22,6 +22,21 @@ exports.appRouter = (0, trpc_1.router)({
     profile: trpc_1.authProcedure.query(({ ctx }) => {
         return ctx.user;
     }),
+    user: trpc_1.authProcedure
+        .input(zod_1.default.object({
+        id: zod_1.default.string(),
+    }))
+        .query(({ ctx, input }) => __awaiter(void 0, void 0, void 0, function* () {
+        const user = yield client_1.prisma.user.findFirst({
+            where: {
+                id: input.id,
+            },
+        });
+        if (!user) {
+            throw new server_1.TRPCError({ code: "BAD_REQUEST" });
+        }
+        return user;
+    })),
     addComment: trpc_1.authProcedure
         .input(zod_1.default.object({
         to: zod_1.default.string(),
