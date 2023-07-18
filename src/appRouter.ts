@@ -17,12 +17,12 @@ export const appRouter = router({
     .query(async ({ ctx, input }) => {
       const user = await prisma.user.findFirst({
         where: {
-          id: input.id,
+          vk_id: input.id,
         },
       })
 
       if (!user) {
-        throw new TRPCError({ code: "BAD_REQUEST" })
+        throw new TRPCError({ code: "BAD_REQUEST", message: 'Пользователь не найден' })
       }
 
       return user

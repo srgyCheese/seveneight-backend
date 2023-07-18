@@ -29,11 +29,11 @@ exports.appRouter = (0, trpc_1.router)({
         .query(({ ctx, input }) => __awaiter(void 0, void 0, void 0, function* () {
         const user = yield client_1.prisma.user.findFirst({
             where: {
-                id: input.id,
+                vk_id: input.id,
             },
         });
         if (!user) {
-            throw new server_1.TRPCError({ code: "BAD_REQUEST" });
+            throw new server_1.TRPCError({ code: "BAD_REQUEST", message: 'Пользователь не найден' });
         }
         return user;
     })),
