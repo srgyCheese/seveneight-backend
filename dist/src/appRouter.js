@@ -62,7 +62,17 @@ exports.appRouter = (0, trpc_1.router)({
         if (!toUser) {
             throw new server_1.TRPCError({ code: "BAD_REQUEST" });
         }
-        const randomCommentTemplate = yield client_1.prisma.commentTemplate.findFirst();
+        const everyIdInTable = yield client_1.prisma.commentTemplate.findMany({
+            select: { id: true },
+        });
+        const idArray = everyIdInTable.map((element) => element.id);
+        const randomIndex = Math.floor(Math.random() * idArray.length);
+        const randomIdFromTable = idArray[randomIndex];
+        const randomCommentTemplate = yield client_1.prisma.commentTemplate.findFirst({
+            where: {
+                id: randomIdFromTable
+            }
+        });
         const comment = yield client_1.prisma.userComment.create({
             data: {
                 fromUserId: ctx.user.id,

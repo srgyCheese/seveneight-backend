@@ -56,7 +56,18 @@ export const appRouter = router({
         throw new TRPCError({ code: "BAD_REQUEST" })
       }
 
-      const randomCommentTemplate = await prisma.commentTemplate.findFirst()
+      const everyIdInTable = await prisma.commentTemplate.findMany({
+        select: { id: true },
+      })
+      const idArray = everyIdInTable.map((element) => element.id)
+      const randomIndex = Math.floor(Math.random() * idArray.length)
+      const randomIdFromTable = idArray[randomIndex]
+      
+      const randomCommentTemplate = await prisma.commentTemplate.findFirst({
+        where: {
+          id: randomIdFromTable
+        }
+      })
 
       const comment = await prisma.userComment.create({
         data: {
