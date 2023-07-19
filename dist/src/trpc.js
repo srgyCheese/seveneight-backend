@@ -15,40 +15,16 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.authProcedure = exports.publicProcedure = exports.middleware = exports.router = exports.createContext = void 0;
 const server_1 = require("@trpc/server");
 const querystring_1 = __importDefault(require("querystring"));
-const client_1 = require("../prisma/client");
-const vk_1 = require("./utils/vk");
 const verifyLaunchParams_1 = require("./utils/verifyLaunchParams");
+const safeGetUser_1 = require("./utils/safeGetUser");
 const createContext = ({ req, res, }) => __awaiter(void 0, void 0, void 0, function* () {
     const urlParams = querystring_1.default.decode(req.headers.authorization);
     const areLaunchParamsValid = (0, verifyLaunchParams_1.verifyLaunchParams)(req.headers.authorization);
     if (!areLaunchParamsValid) {
         throw new server_1.TRPCError({ code: "UNAUTHORIZED" });
     }
-    const candidate = yield client_1.prisma.user.findFirst({
-        where: {
-            vk_id: urlParams.vk_user_id.toString(),
-        },
-    });
-    if (candidate) {
-        return {
-            user: candidate,
-        };
-    }
-    // const { ref } = urlParams
-    // const user_ = await prisma.user.findFirst({
-    //   where: { vk_id: ref.toString() },
-    // })
-    const vkUser = yield vk_1.vk.api.users.get({
-        user_ids: [urlParams.vk_user_id.toString()],
-        fields: ["photo_400"],
-    });
-    const user = yield client_1.prisma.user.create({
-        data: {
-            first_name: vkUser[0].first_name,
-            last_name: vkUser[0].last_name,
-            photo_400: vkUser[0].photo_400,
-            vk_id: urlParams.vk_user_id.toString(),
-        },
+    const user = yield (0, safeGetUser_1.safeGetUser)({
+        vk_id: urlParams.vk_user_id.toString()
     });
     return { user };
 });

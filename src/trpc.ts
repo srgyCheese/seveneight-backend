@@ -4,6 +4,7 @@ import qs from "querystring"
 import { prisma } from "../prisma/client"
 import { vk } from "./utils/vk"
 import { verifyLaunchParams } from "./utils/verifyLaunchParams"
+import { safeGetUser } from "./utils/safeGetUser"
 
 export const createContext = async ({
   req,
@@ -17,36 +18,8 @@ export const createContext = async ({
     throw new TRPCError({ code: "UNAUTHORIZED" })
   }
 
-  const candidate = await prisma.user.findFirst({
-    where: {
-      vk_id: urlParams.vk_user_id.toString(),
-    },
-  })
-
-  if (candidate) {
-    return {
-      user: candidate,
-    }
-  }
-
-  // const { ref } = urlParams
-
-  // const user_ = await prisma.user.findFirst({
-  //   where: { vk_id: ref.toString() },
-  // })
-
-  const vkUser = await vk.api.users.get({
-    user_ids: [urlParams.vk_user_id.toString()],
-    fields: ["photo_400"],
-  })
-
-  const user = await prisma.user.create({
-    data: {
-      first_name: vkUser[0].first_name,
-      last_name: vkUser[0].last_name,
-      photo_400: vkUser[0].photo_400,
-      vk_id: urlParams.vk_user_id.toString(),
-    },
+  const user = await safeGetUser({
+    vk_id: urlParams.vk_user_id.toString()
   })
 
   return { user }

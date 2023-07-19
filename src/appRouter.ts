@@ -2,6 +2,7 @@ import { authProcedure, publicProcedure, router } from "./trpc"
 import z from "zod"
 import { prisma } from "../prisma/client"
 import { TRPCError } from "@trpc/server"
+import { safeGetUser } from "./utils/safeGetUser"
 
 export const appRouter = router({
   test: publicProcedure.query(() => "test nice"),
@@ -15,20 +16,7 @@ export const appRouter = router({
       })
     )
     .query(async ({ ctx, input }) => {
-      const user = await prisma.user.findFirst({
-        where: {
-          vk_id: input.id,
-        },
-        include: {
-          comments: {
-            include: {
-              commentTemplate: true,
-              toUser: true,
-              fromUser: true,
-            },
-          },
-        },
-      })
+      const user = await safeGetUser({vk_id: input.id})
 
       if (!user) {
         throw new TRPCError({

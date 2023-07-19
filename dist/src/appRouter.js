@@ -17,6 +17,7 @@ const trpc_1 = require("./trpc");
 const zod_1 = __importDefault(require("zod"));
 const client_1 = require("../prisma/client");
 const server_1 = require("@trpc/server");
+const safeGetUser_1 = require("./utils/safeGetUser");
 exports.appRouter = (0, trpc_1.router)({
     test: trpc_1.publicProcedure.query(() => "test nice"),
     profile: trpc_1.authProcedure.query(({ ctx }) => {
@@ -27,20 +28,7 @@ exports.appRouter = (0, trpc_1.router)({
         id: zod_1.default.string(),
     }))
         .query(({ ctx, input }) => __awaiter(void 0, void 0, void 0, function* () {
-        const user = yield client_1.prisma.user.findFirst({
-            where: {
-                vk_id: input.id,
-            },
-            include: {
-                comments: {
-                    include: {
-                        commentTemplate: true,
-                        toUser: true,
-                        fromUser: true,
-                    },
-                },
-            },
-        });
+        const user = yield (0, safeGetUser_1.safeGetUser)({ vk_id: input.id });
         if (!user) {
             throw new server_1.TRPCError({
                 code: "BAD_REQUEST",
