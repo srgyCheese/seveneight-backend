@@ -20,7 +20,13 @@ export const appRouter = router({
           vk_id: input.id,
         },
         include: {
-          comments: true,
+          comments: {
+            include: {
+              commentTemplate: true,
+              toUser: true,
+              fromUser: true
+            }
+          },
         },
       })
 

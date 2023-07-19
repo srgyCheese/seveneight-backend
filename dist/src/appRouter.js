@@ -32,7 +32,13 @@ exports.appRouter = (0, trpc_1.router)({
                 vk_id: input.id,
             },
             include: {
-                comments: true,
+                comments: {
+                    include: {
+                        commentTemplate: true,
+                        toUser: true,
+                        fromUser: true
+                    }
+                },
             },
         });
         if (!user) {
