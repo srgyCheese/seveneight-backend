@@ -53,5 +53,9 @@ model Post {
 model CommentTemplate {
   id       String        @id @default(cuid())
   url      String
+  isRounded   Boolean @default(true)
+  avatarTransfrom String @default("")
+  textTransform String @default("translate(16%, 0);")
+
   comments UserComment[]
 }
