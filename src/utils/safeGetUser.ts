@@ -5,6 +5,15 @@ import { TRPCError } from "@trpc/server"
 export const safeGetUser = async ({ vk_id }: { vk_id: string }) => {
   const candidate = await prisma.user.findFirst({
     where: { vk_id },
+    include: {
+      comments: {
+        include: {
+          commentTemplate: true,
+          toUser: true,
+          fromUser: true,
+        },
+      },
+    },
   })
 
   if (candidate) {

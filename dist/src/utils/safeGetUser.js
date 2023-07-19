@@ -16,6 +16,15 @@ const server_1 = require("@trpc/server");
 const safeGetUser = ({ vk_id }) => __awaiter(void 0, void 0, void 0, function* () {
     const candidate = yield client_1.prisma.user.findFirst({
         where: { vk_id },
+        include: {
+            comments: {
+                include: {
+                    commentTemplate: true,
+                    toUser: true,
+                    fromUser: true,
+                },
+            },
+        },
     });
     if (candidate) {
         return candidate;
