@@ -80,7 +80,21 @@ exports.appRouter = (0, trpc_1.router)({
                 commentTemplateId: randomCommentTemplate.id,
             },
         });
-        return { comment };
+        const toUserWithComments = yield client_1.prisma.user.findFirst({
+            where: {
+                id: toUser.id
+            },
+            include: {
+                comments: {
+                    include: {
+                        commentTemplate: true,
+                        toUser: true,
+                        fromUser: true
+                    }
+                },
+            },
+        });
+        return toUserWithComments;
     })),
 });
 //# sourceMappingURL=appRouter.js.map

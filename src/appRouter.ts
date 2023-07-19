@@ -62,7 +62,7 @@ export const appRouter = router({
       const idArray = everyIdInTable.map((element) => element.id)
       const randomIndex = Math.floor(Math.random() * idArray.length)
       const randomIdFromTable = idArray[randomIndex]
-      
+
       const randomCommentTemplate = await prisma.commentTemplate.findFirst({
         where: {
           id: randomIdFromTable
@@ -77,7 +77,22 @@ export const appRouter = router({
         },
       })
 
-      return { comment }
+      const toUserWithComments = await prisma.user.findFirst({
+        where: {
+          id: toUser.id
+        },
+        include: {
+          comments: {
+            include: {
+              commentTemplate: true,
+              toUser: true,
+              fromUser: true
+            }
+          },
+        },
+      })
+
+      return toUserWithComments
     }),
 })
 
