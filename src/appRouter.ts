@@ -24,8 +24,8 @@ export const appRouter = router({
             include: {
               commentTemplate: true,
               toUser: true,
-              fromUser: true
-            }
+              fromUser: true,
+            },
           },
         },
       })
@@ -56,38 +56,47 @@ export const appRouter = router({
         throw new TRPCError({ code: "BAD_REQUEST" })
       }
 
-      const everyIdInTable = await prisma.commentTemplate.findMany({
-        select: { id: true },
-      })
-      const idArray = everyIdInTable.map((element) => element.id)
-      const randomIndex = Math.floor(Math.random() * idArray.length)
-      const randomIdFromTable = idArray[randomIndex]
-
-      const randomCommentTemplate = await prisma.commentTemplate.findFirst({
+      const hasComment = await prisma.userComment.findFirst({
         where: {
-          id: randomIdFromTable
-        }
-      })
-
-      const comment = await prisma.userComment.create({
-        data: {
           fromUserId: ctx.user.id,
           toUserId: toUser.id,
-          commentTemplateId: randomCommentTemplate.id,
         },
       })
 
+      if (!hasComment) {
+        const everyIdInTable = await prisma.commentTemplate.findMany({
+          select: { id: true },
+        })
+        const idArray = everyIdInTable.map((element) => element.id)
+        const randomIndex = Math.floor(Math.random() * idArray.length)
+        const randomIdFromTable = idArray[randomIndex]
+
+        const randomCommentTemplate = await prisma.commentTemplate.findFirst({
+          where: {
+            id: randomIdFromTable,
+          },
+        })
+
+        const comment = await prisma.userComment.create({
+          data: {
+            fromUserId: ctx.user.id,
+            toUserId: toUser.id,
+            commentTemplateId: randomCommentTemplate.id,
+          },
+        })
+      }
+
       const toUserWithComments = await prisma.user.findFirst({
         where: {
-          id: toUser.id
+          id: toUser.id,
         },
         include: {
           comments: {
             include: {
               commentTemplate: true,
               toUser: true,
-              fromUser: true
-            }
+              fromUser: true,
+            },
           },
         },
       })

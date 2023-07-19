@@ -36,8 +36,8 @@ exports.appRouter = (0, trpc_1.router)({
                     include: {
                         commentTemplate: true,
                         toUser: true,
-                        fromUser: true
-                    }
+                        fromUser: true,
+                    },
                 },
             },
         });
@@ -62,35 +62,43 @@ exports.appRouter = (0, trpc_1.router)({
         if (!toUser) {
             throw new server_1.TRPCError({ code: "BAD_REQUEST" });
         }
-        const everyIdInTable = yield client_1.prisma.commentTemplate.findMany({
-            select: { id: true },
-        });
-        const idArray = everyIdInTable.map((element) => element.id);
-        const randomIndex = Math.floor(Math.random() * idArray.length);
-        const randomIdFromTable = idArray[randomIndex];
-        const randomCommentTemplate = yield client_1.prisma.commentTemplate.findFirst({
+        const hasComment = yield client_1.prisma.userComment.findFirst({
             where: {
-                id: randomIdFromTable
-            }
-        });
-        const comment = yield client_1.prisma.userComment.create({
-            data: {
                 fromUserId: ctx.user.id,
                 toUserId: toUser.id,
-                commentTemplateId: randomCommentTemplate.id,
             },
         });
+        if (!hasComment) {
+            const everyIdInTable = yield client_1.prisma.commentTemplate.findMany({
+                select: { id: true },
+            });
+            const idArray = everyIdInTable.map((element) => element.id);
+            const randomIndex = Math.floor(Math.random() * idArray.length);
+            const randomIdFromTable = idArray[randomIndex];
+            const randomCommentTemplate = yield client_1.prisma.commentTemplate.findFirst({
+                where: {
+                    id: randomIdFromTable,
+                },
+            });
+            const comment = yield client_1.prisma.userComment.create({
+                data: {
+                    fromUserId: ctx.user.id,
+                    toUserId: toUser.id,
+                    commentTemplateId: randomCommentTemplate.id,
+                },
+            });
+        }
         const toUserWithComments = yield client_1.prisma.user.findFirst({
             where: {
-                id: toUser.id
+                id: toUser.id,
             },
             include: {
                 comments: {
                     include: {
                         commentTemplate: true,
                         toUser: true,
-                        fromUser: true
-                    }
+                        fromUser: true,
+                    },
                 },
             },
         });
