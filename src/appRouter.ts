@@ -56,11 +56,13 @@ export const appRouter = router({
         throw new TRPCError({ code: "BAD_REQUEST" })
       }
 
+      const randomCommentTemplate = await prisma.commentTemplate.findFirst()
+
       const comment = await prisma.userComment.create({
         data: {
           fromUserId: ctx.user.id,
           toUserId: toUser.id,
-          commentTemplateId: "0",
+          commentTemplateId: randomCommentTemplate.id,
         },
       })
 

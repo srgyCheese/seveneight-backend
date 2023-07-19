@@ -62,11 +62,12 @@ exports.appRouter = (0, trpc_1.router)({
         if (!toUser) {
             throw new server_1.TRPCError({ code: "BAD_REQUEST" });
         }
+        const randomCommentTemplate = yield client_1.prisma.commentTemplate.findFirst();
         const comment = yield client_1.prisma.userComment.create({
             data: {
                 fromUserId: ctx.user.id,
                 toUserId: toUser.id,
-                commentTemplateId: "0",
+                commentTemplateId: randomCommentTemplate.id,
             },
         });
         return { comment };
