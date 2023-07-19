@@ -19,10 +19,16 @@ export const appRouter = router({
         where: {
           vk_id: input.id,
         },
+        include: {
+          comments: true,
+        },
       })
 
       if (!user) {
-        throw new TRPCError({ code: "BAD_REQUEST", message: 'Пользователь не найден' })
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "Пользователь не найден",
+        })
       }
 
       return user

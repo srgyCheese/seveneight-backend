@@ -31,9 +31,15 @@ exports.appRouter = (0, trpc_1.router)({
             where: {
                 vk_id: input.id,
             },
+            include: {
+                comments: true,
+            },
         });
         if (!user) {
-            throw new server_1.TRPCError({ code: "BAD_REQUEST", message: 'Пользователь не найден' });
+            throw new server_1.TRPCError({
+                code: "BAD_REQUEST",
+                message: "Пользователь не найден",
+            });
         }
         return user;
     })),
