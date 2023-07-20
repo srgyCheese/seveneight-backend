@@ -151,7 +151,7 @@ export const appRouter = router({
         })
       }
 
-      const toPhotoWithComments = await prisma.user.findFirst({
+      const toPhotoWithComments = await prisma.photo.findFirst({
         where: {
           id: toPhoto.id,
         },

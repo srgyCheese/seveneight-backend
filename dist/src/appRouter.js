@@ -140,7 +140,7 @@ exports.appRouter = (0, trpc_1.router)({
                 },
             });
         }
-        const toPhotoWithComments = yield client_1.prisma.user.findFirst({
+        const toPhotoWithComments = yield client_1.prisma.photo.findFirst({
             where: {
                 id: toPhoto.id,
             },
