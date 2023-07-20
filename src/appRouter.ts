@@ -104,6 +104,69 @@ export const appRouter = router({
 
       return photo
     }),
+  addCommentToPhoto: authProcedure
+    .input(
+      z.object({
+        to: z.string(),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      const toPhoto = await prisma.photo.findFirst({
+        where: {
+          id: input.to,
+        },
+      })
+
+      if (!toPhoto) {
+        throw new TRPCError({ code: "BAD_REQUEST" })
+      }
+
+      const hasComment = await prisma.photoComment.findFirst({
+        where: {
+          fromUserId: ctx.user.id,
+          toPhotoId: toPhoto.id,
+        },
+      })
+
+      if (!hasComment) {
+        const everyIdInTable = await prisma.commentTemplate.findMany({
+          select: { id: true },
+        })
+        const idArray = everyIdInTable.map((element) => element.id)
+        const randomIndex = Math.floor(Math.random() * idArray.length)
+        const randomIdFromTable = idArray[randomIndex]
+
+        const randomCommentTemplate = await prisma.commentTemplate.findFirst({
+          where: {
+            id: randomIdFromTable,
+          },
+        })
+
+        const comment = await prisma.photoComment.create({
+          data: {
+            fromUserId: ctx.user.id,
+            toPhotoId: toPhoto.id,
+            commentTemplateId: randomCommentTemplate.id,
+          },
+        })
+      }
+
+      const toPhotoWithComments = await prisma.user.findFirst({
+        where: {
+          id: toPhoto.id,
+        },
+        include: {
+          comments: {
+            include: {
+              commentTemplate: true,
+              fromUser: true,
+            },
+          },
+        },
+      })
+
+      return toPhotoWithComments
+    }),
   addComment: authProcedure
     .input(
       z.object({

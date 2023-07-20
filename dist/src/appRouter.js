@@ -101,6 +101,60 @@ exports.appRouter = (0, trpc_1.router)({
         });
         return photo;
     })),
+    addCommentToPhoto: trpc_1.authProcedure
+        .input(zod_1.default.object({
+        to: zod_1.default.string(),
+    }))
+        .mutation(({ ctx, input }) => __awaiter(void 0, void 0, void 0, function* () {
+        const toPhoto = yield client_1.prisma.photo.findFirst({
+            where: {
+                id: input.to,
+            },
+        });
+        if (!toPhoto) {
+            throw new server_1.TRPCError({ code: "BAD_REQUEST" });
+        }
+        const hasComment = yield client_1.prisma.photoComment.findFirst({
+            where: {
+                fromUserId: ctx.user.id,
+                toPhotoId: toPhoto.id,
+            },
+        });
+        if (!hasComment) {
+            const everyIdInTable = yield client_1.prisma.commentTemplate.findMany({
+                select: { id: true },
+            });
+            const idArray = everyIdInTable.map((element) => element.id);
+            const randomIndex = Math.floor(Math.random() * idArray.length);
+            const randomIdFromTable = idArray[randomIndex];
+            const randomCommentTemplate = yield client_1.prisma.commentTemplate.findFirst({
+                where: {
+                    id: randomIdFromTable,
+                },
+            });
+            const comment = yield client_1.prisma.photoComment.create({
+                data: {
+                    fromUserId: ctx.user.id,
+                    toPhotoId: toPhoto.id,
+                    commentTemplateId: randomCommentTemplate.id,
+                },
+            });
+        }
+        const toPhotoWithComments = yield client_1.prisma.user.findFirst({
+            where: {
+                id: toPhoto.id,
+            },
+            include: {
+                comments: {
+                    include: {
+                        commentTemplate: true,
+                        fromUser: true,
+                    },
+                },
+            },
+        });
+        return toPhotoWithComments;
+    })),
     addComment: trpc_1.authProcedure
         .input(zod_1.default.object({
         to: zod_1.default.string(),
