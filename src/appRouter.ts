@@ -56,6 +56,8 @@ export const appRouter = router({
           url: input.photo,
         },
       })
+
+      return newPhoto
     }),
   getPhotos: authProcedure
     .input(
@@ -64,18 +66,27 @@ export const appRouter = router({
       })
     )
     .query(async ({ input }) => {
+      const user = await prisma.user.findFirst({
+        where: {
+          vk_id: input.userId,
+        },
+        select: { id: true },
+      })
+
       const allPhotos = await prisma.photo.findMany({
         where: {
-          userId: input.userId,
+          userId: user.id,
         },
       })
 
       return allPhotos
     }),
   getPhoto: authProcedure
-    .input(z.object({
-      photoId: z.string(),
-    }))
+    .input(
+      z.object({
+        photoId: z.string(),
+      })
+    )
     .query(async ({ input }) => {
       const photo = await prisma.photo.findFirst({
         where: {

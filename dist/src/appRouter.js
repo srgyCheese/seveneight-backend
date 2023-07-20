@@ -61,15 +61,22 @@ exports.appRouter = (0, trpc_1.router)({
                 url: input.photo,
             },
         });
+        return newPhoto;
     })),
     getPhotos: trpc_1.authProcedure
         .input(zod_1.default.object({
         userId: zod_1.default.string(),
     }))
         .query(({ input }) => __awaiter(void 0, void 0, void 0, function* () {
+        const user = yield client_1.prisma.user.findFirst({
+            where: {
+                vk_id: input.userId,
+            },
+            select: { id: true },
+        });
         const allPhotos = yield client_1.prisma.photo.findMany({
             where: {
-                userId: input.userId,
+                userId: user.id,
             },
         });
         return allPhotos;
