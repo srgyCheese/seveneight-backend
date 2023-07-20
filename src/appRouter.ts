@@ -4,7 +4,6 @@ import { prisma } from "../prisma/client"
 import { TRPCError } from "@trpc/server"
 import { safeGetUser } from "./utils/safeGetUser"
 import { vk } from "./utils/vk"
-import { VK } from "vk-io"
 
 export const appRouter = router({
   test: publicProcedure.query(() => "test nice"),
@@ -33,19 +32,14 @@ export const appRouter = router({
     .input(
       z.object({
         base64Image: z.string(),
-        token: z.string()
       })
     )
     .mutation(async ({ input }) => {
-      const userVK = new VK({
-        token: input.token
-      })
-
-      const photo = await userVK.upload.wallPhoto({
+      const photo = await vk.upload.messagePhoto({
         source: {
           value: Buffer.from(input.base64Image, 'base64')
         },
-      })
+      })      
 
       return photo
     }),
