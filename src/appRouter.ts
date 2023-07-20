@@ -35,20 +35,63 @@ export const appRouter = router({
       })
     )
     .mutation(async ({ input }) => {
-      try {
-        const photo = await vk.upload.messagePhoto({
-          source: {
-            value: Buffer.from(input.base64Image, 'base64')
+      const photo = await vk.upload.messagePhoto({
+        source: {
+          value: Buffer.from(input.base64Image, "base64"),
+        },
+      })
+
+      return photo
+    }),
+  addPhotoToList: authProcedure
+    .input(
+      z.object({
+        photo: z.string(),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      const newPhoto = await prisma.photo.create({
+        data: {
+          userId: ctx.user.id,
+          url: input.photo,
+        },
+      })
+    }),
+  getPhotos: authProcedure
+    .input(
+      z.object({
+        userId: z.string(),
+      })
+    )
+    .query(async ({ input }) => {
+      const allPhotos = await prisma.photo.findMany({
+        where: {
+          userId: input.userId,
+        },
+      })
+
+      return allPhotos
+    }),
+  getPhoto: authProcedure
+    .input(z.object({
+      photoId: z.string(),
+    }))
+    .query(async ({ input }) => {
+      const photo = await prisma.photo.findFirst({
+        where: {
+          id: input.photoId,
+        },
+        include: {
+          comments: {
+            include: {
+              commentTemplate: true,
+              fromUser: true,
+            },
           },
-        })     
-  
-        return photo
-      } catch (e) {
-        throw new TRPCError({
-          code: 'BAD_REQUEST',
-          message: e.message
-        })
-      }
+        },
+      })
+
+      return photo
     }),
   addComment: authProcedure
     .input(

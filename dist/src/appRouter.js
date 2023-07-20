@@ -43,20 +43,56 @@ exports.appRouter = (0, trpc_1.router)({
         base64Image: zod_1.default.string(),
     }))
         .mutation(({ input }) => __awaiter(void 0, void 0, void 0, function* () {
-        try {
-            const photo = yield vk_1.vk.upload.messagePhoto({
-                source: {
-                    value: Buffer.from(input.base64Image, 'base64')
+        const photo = yield vk_1.vk.upload.messagePhoto({
+            source: {
+                value: Buffer.from(input.base64Image, "base64"),
+            },
+        });
+        return photo;
+    })),
+    addPhotoToList: trpc_1.authProcedure
+        .input(zod_1.default.object({
+        photo: zod_1.default.string(),
+    }))
+        .mutation(({ ctx, input }) => __awaiter(void 0, void 0, void 0, function* () {
+        const newPhoto = yield client_1.prisma.photo.create({
+            data: {
+                userId: ctx.user.id,
+                url: input.photo,
+            },
+        });
+    })),
+    getPhotos: trpc_1.authProcedure
+        .input(zod_1.default.object({
+        userId: zod_1.default.string(),
+    }))
+        .query(({ input }) => __awaiter(void 0, void 0, void 0, function* () {
+        const allPhotos = yield client_1.prisma.photo.findMany({
+            where: {
+                userId: input.userId,
+            },
+        });
+        return allPhotos;
+    })),
+    getPhoto: trpc_1.authProcedure
+        .input(zod_1.default.object({
+        photoId: zod_1.default.string(),
+    }))
+        .query(({ input }) => __awaiter(void 0, void 0, void 0, function* () {
+        const photo = yield client_1.prisma.photo.findFirst({
+            where: {
+                id: input.photoId,
+            },
+            include: {
+                comments: {
+                    include: {
+                        commentTemplate: true,
+                        fromUser: true,
+                    },
                 },
-            });
-            return photo;
-        }
-        catch (e) {
-            throw new server_1.TRPCError({
-                code: 'BAD_REQUEST',
-                message: e.message
-            });
-        }
+            },
+        });
+        return photo;
     })),
     addComment: trpc_1.authProcedure
         .input(zod_1.default.object({

@@ -20,8 +20,11 @@ model User {
   photo_100  String?
 
   posts         Post[]
+  photos        Photo[]
   comments      UserComment[] @relation(name: "OtherUsersComments")
   addedComments UserComment[] @relation(name: "UserComments")
+
+  photoComments PhotoComment[]
 }
 
 model UserComment {
@@ -39,6 +42,33 @@ model UserComment {
   @@index([commentTemplateId])
 }
 
+model Photo {
+  id     String @id @default(cuid())
+  userId String
+  url    String
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  comments PhotoComment[]
+
+  @@index([userId])
+}
+
+model PhotoComment {
+  id                String @id @default(cuid())
+  toPhotoId         String
+  fromUserId        String
+  commentTemplateId String
+
+  photo           Photo           @relation(fields: [toPhotoId], references: [id], onDelete: Cascade)
+  fromUser        User            @relation(fields: [fromUserId], references: [id], onDelete: Cascade)
+  commentTemplate CommentTemplate @relation(fields: [commentTemplateId], references: [id], onDelete: Cascade)
+
+  @@index([toPhotoId])
+  @@index([fromUserId])
+  @@index([commentTemplateId])
+}
+
 model Post {
   id      String @id @default(cuid())
   userId  String
@@ -51,11 +81,12 @@ model Post {
 }
 
 model CommentTemplate {
-  id       String        @id @default(cuid())
-  url      String
-  isRounded   Boolean @default(true)
-  avatarTransfrom String @default("")
-  textTransform String @default("translate(16%, 0);")
+  id              String  @id @default(cuid())
+  url             String
+  isRounded       Boolean @default(true)
+  avatarTransfrom String  @default("")
+  textTransform   String  @default("translate(16%, 0);")
 
-  comments UserComment[]
+  comments      UserComment[]
+  photoComments PhotoComment[]
 }
