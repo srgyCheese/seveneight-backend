@@ -43,12 +43,20 @@ exports.appRouter = (0, trpc_1.router)({
         base64Image: zod_1.default.string(),
     }))
         .mutation(({ input }) => __awaiter(void 0, void 0, void 0, function* () {
-        const photo = yield vk_1.vk.upload.messagePhoto({
-            source: {
-                value: Buffer.from(input.base64Image, 'base64')
-            },
-        });
-        return photo;
+        try {
+            const photo = yield vk_1.vk.upload.messagePhoto({
+                source: {
+                    value: Buffer.from(input.base64Image, 'base64')
+                },
+            });
+            return photo;
+        }
+        catch (e) {
+            throw new server_1.TRPCError({
+                code: 'BAD_REQUEST',
+                message: e.message
+            });
+        }
     })),
     addComment: trpc_1.authProcedure
         .input(zod_1.default.object({

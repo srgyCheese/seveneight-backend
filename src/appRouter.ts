@@ -35,13 +35,20 @@ export const appRouter = router({
       })
     )
     .mutation(async ({ input }) => {
-      const photo = await vk.upload.messagePhoto({
-        source: {
-          value: Buffer.from(input.base64Image, 'base64')
-        },
-      })      
-
-      return photo
+      try {
+        const photo = await vk.upload.messagePhoto({
+          source: {
+            value: Buffer.from(input.base64Image, 'base64')
+          },
+        })     
+  
+        return photo
+      } catch (e) {
+        throw new TRPCError({
+          code: 'BAD_REQUEST',
+          message: e.message
+        })
+      }
     }),
   addComment: authProcedure
     .input(
