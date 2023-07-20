@@ -18,7 +18,7 @@ const zod_1 = __importDefault(require("zod"));
 const client_1 = require("../prisma/client");
 const server_1 = require("@trpc/server");
 const safeGetUser_1 = require("./utils/safeGetUser");
-const vk_1 = require("./utils/vk");
+const vk_io_1 = require("vk-io");
 exports.appRouter = (0, trpc_1.router)({
     test: trpc_1.publicProcedure.query(() => "test nice"),
     profile: trpc_1.authProcedure.query(({ ctx }) => {
@@ -41,12 +41,16 @@ exports.appRouter = (0, trpc_1.router)({
     uploadImage: trpc_1.authProcedure
         .input(zod_1.default.object({
         base64Image: zod_1.default.string(),
+        token: zod_1.default.string()
     }))
         .mutation(({ input }) => __awaiter(void 0, void 0, void 0, function* () {
-        const photo = yield vk_1.vk.upload.messagePhoto({
+        const userVK = new vk_io_1.VK({
+            token: input.token
+        });
+        const photo = yield userVK.upload.wallPhoto({
             source: {
                 value: Buffer.from(input.base64Image, 'base64')
-            }
+            },
         });
         return photo;
     })),
