@@ -3,6 +3,7 @@ import z from "zod"
 import { prisma } from "../prisma/client"
 import { TRPCError } from "@trpc/server"
 import { safeGetUser } from "./utils/safeGetUser"
+import { vk } from "./utils/vk"
 
 export const appRouter = router({
   test: publicProcedure.query(() => "test nice"),
@@ -16,7 +17,7 @@ export const appRouter = router({
       })
     )
     .query(async ({ ctx, input }) => {
-      const user = await safeGetUser({vk_id: input.id})
+      const user = await safeGetUser({ vk_id: input.id })
 
       if (!user) {
         throw new TRPCError({
@@ -26,6 +27,21 @@ export const appRouter = router({
       }
 
       return user
+    }),
+  uploadImage: authProcedure
+    .input(
+      z.object({
+        base64Image: z.string(),
+      })
+    )
+    .mutation(async ({ input }) => {
+      const photo = await vk.upload.messagePhoto({
+        source: {
+          value: Buffer.from(input.base64Image, 'base64')
+        }
+      })
+
+      return photo
     }),
   addComment: authProcedure
     .input(
