@@ -78,6 +78,9 @@ exports.appRouter = (0, trpc_1.router)({
             where: {
                 userId: user.id,
             },
+            orderBy: [{
+                    id: 'desc'
+                }]
         });
         return allPhotos;
     })),

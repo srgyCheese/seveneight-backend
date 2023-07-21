@@ -77,6 +77,9 @@ export const appRouter = router({
         where: {
           userId: user.id,
         },
+        orderBy: [{
+          id: 'desc'
+        }]
       })
 
       return allPhotos
